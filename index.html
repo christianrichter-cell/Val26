@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentýn 2026</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
+
+    <style>
+        /* --- CSS STYLY --- */
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe6e6; /* Výchozí růžová */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; 
+            text-align: center;
+            transition: background-color 0.8s ease, background-image 0.8s ease; 
+            box-sizing: border-box;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* --- Třídy pro změnu barvy/pozadí --- */
+        body.angry-mode { background-color: #b30000 !important; }
+        body.green-mode { background-color: #d4edda !important; }
+        
+        body.titanic-mode {
+            background-image: url('titanic.jpg');
+            background-color: transparent !important; 
+        }
+        body.sushi-mode {
+            background-image: url('sushi.jpg');
+            background-color: transparent !important;
+        }
+
+        /* Styl pro GIFy */
+        .obrazek {
+            max-width: 500px; 
+            width: 90%; 
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        body.angry-mode .obrazek {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 5px solid #ff0000;
+        }
+
+        /* --- OBECNÉ KONTEJNERY FÁZÍ --- */
+        .faze {
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            justify-content: center;
+        }
+
+        #faze-1 { display: flex; min-height: 60vh; }
+        #faze-angry { color: white; animation: shake 0.5s; }
+        #faze-stesti { animation: popIn 0.5s; }
+        
+        /* Titanic a Sushi styly níže */
+
+        h1 {
+            color: #d63384;
+            font-size: 2.2rem;
+            margin: 0 0 40px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            z-index: 10;
+            line-height: 1.3;
+        }
+
+        body.angry-mode h1 { color: #ffcccc; text-shadow: 2px 2px 0px #000; }
+        body.green-mode h1 { color: #155724; }
+
+        .btn-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            white-space: nowrap;
+            font-size: 1.5rem;
+            padding: 20px 40px;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        button:hover { transform: scale(1.05); }
+
+        /* --- SPECIFICKÁ TLAČÍTKA --- */
+        #btn-ano { background-color: #28a745; color: white; margin-right: 150px; }
+        #btn-ano:hover { background-color: #218838; }
+
+        #btn-ne {
+            background-color: #dc3545;
+            color: white;
+            position: absolute; 
+            left: calc(50% + 100px); 
+            transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 20;
+        }
+
+        #btn-rozmyslela { background-color: white; color: #b30000; margin-top: 20px; font-size: 1.3rem;}
+        #btn-zjistit { background-color: #28a745; color: white; margin-top: 20px; }
+        
+        #btn-dalsi { background-color: #007bff; color: white; margin-top: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
+        #btn-dalsi:hover { background-color: #0056b3; }
+
+
+        /* --- ŠIPKY NA ANGRY STRÁNCE --- */
+        .arrows-wrapper { position: relative; display: inline-block; margin-top: 20px; }
+        .arrow { position: absolute; font-size: 3rem; color: yellow; font-weight: bold; text-shadow: 2px 2px 0 #000; pointer-events: none; }
+        .arrow.top { top: -60px; left: 50%; transform: translateX(-50%); animation: pulseTop 0.8s infinite alternate ease-in-out; }
+        .arrow.bottom { bottom: -60px; left: 50%; transform: translateX(-50%); animation: pulseBottom 0.8s infinite alternate ease-in-out; }
+        .arrow.left { left: -80px; top: 50%; transform: translateY(-50%); animation: pulseLeft 0.8s infinite alternate ease-in-out; }
+        .arrow.right { right: -80px; top: 50%; transform: translateY(-50%); animation: pulseRight 0.8s infinite alternate ease-in-out; }
+        @keyframes pulseTop { from { top: -70px; } to { top: -50px; } }
+        @keyframes pulseBottom { from { bottom: -70px; } to { bottom: -50px; } }
+        @keyframes pulseLeft { from { left: -90px; } to { left: -70px; } }
+        @keyframes pulseRight { from { right: -90px; } to { right: -70px; } }
+
+        /* --- ANIMACE --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* --- STYLY PRO TITANIC KARTU --- */
+        #faze-titanic {
+            animation: popIn 0.8s;
+            width: 100%;
+            min-height: 80vh; 
+        }
+
+        .titanic-card {
+            background-color: rgba(173, 216, 230, 0.7);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .titanic-card h2 { color: #003366; font-size: 2rem; margin-top: 0; margin-bottom: 20px; }
+        .titanic-card p { color: #000; font-size: 1.5rem; line-height: 1.5; font-weight: 500; }
+        
+        /* --- STYLY PRO SUSHI FÁZI --- */
+        #faze-sushi {
+             min-height: 100vh;
+             width: 100%;
+             display: none; 
+             align-items: center; 
+             justify-content: flex-start; 
+             padding-left: 5%; 
+             box-sizing: border-box;
+        }
+
+        /* Obrovský sushi text */
+        .sushi-text {
+            color: white;
+            font-size: 8rem; 
+            font-weight: 900;
+            text-align: left;
+            line-height: 1.1;
+            max-width: 95%; 
+            text-shadow: 
+                3px 3px 0 #000,
+                -1px -1px 0 #000,  
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000,
+                0px 5px 15px rgba(0,0,0,0.5);
+            animation: popIn 1s;
+        }
+
+        /* Úprava velikosti pro mobily */
+        @media (max-width: 768px) {
+            .sushi-text { font-size: 4.5rem; max-width: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="angry-audio" loop>
+        <source src="angry.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="faze-1" class="faze">
+        <img src="1.gif" alt="Láska" class="obrazek" id="img-1">
+        <h1 id="hlavni-nadpis">Budeš letos mým Valentýnem? Prosím. 🥰</h1>
+        
+        <div class="btn-container">
+            <button id="btn-ano">ANO</button>
+            <button id="btn-ne">NE</button>
+        </div>
+    </div>
+
+    <div id="faze-angry" class="faze">
+        <img src="Angry.gif" alt="Angry" class="obrazek">
+        <h1>Máš poslední šanci si to rozmyslet! 🔪</h1>
+        <div class="arrows-wrapper">
+            <div class="arrow top">⬇</div>
+            <div class="arrow bottom">⬆</div>
+            <div class="arrow left">➡</div>
+            <div class="arrow right">⬅</div>
+            <button id="btn-rozmyslela">Ok, rozmyslela jsem si to.</button>
+        </div>
+    </div>
+
+    <div id="faze-stesti" class="faze">
+        <img src="2.gif" alt="Uf" class="obrazek">
+        <h1>Tak to máš jediný štěstí! 🍀</h1>
+        <button id="btn-zjistit">Chci zjistit co mě čeká</button>
+    </div>
+
+    <div id="faze-titanic" class="faze">
+        <div class="titanic-card">
+            <h2>✨ Letošní Valentýn ti nabídne: 🚢</h2>
+            <p>Společnou návštěvu výstavy, kde se vydáme po stopách Titanicu. 🌊💙</p>
+            <button id="btn-dalsi">A co bude dál? 👉</button>
+        </div>
+    </div>
+
+    <div id="faze-sushi" class="faze">
+        <div class="sushi-text">
+            A pak si k večeři dáme<br>pořádnej sushi dlabanec! 🍣
+        </div>
+    </div>
+
+
+    <script>
+        const btnNe = document.getElementById('btn-ne');
+        const btnAno = document.getElementById('btn-ano');
+        const btnRozmyslela = document.getElementById('btn-rozmyslela');
+        const btnZjistit = document.getElementById('btn-zjistit');
+        const btnDalsi = document.getElementById('btn-dalsi');
+        
+        const faze1 = document.getElementById('faze-1');
+        const fazeAngry = document.getElementById('faze-angry');
+        const fazeStesti = document.getElementById('faze-stesti');
+        const fazeTitanic = document.getElementById('faze-titanic');
+        const fazeSushi = document.getElementById('faze-sushi');
+        
+        const angryAudio = document.getElementById('angry-audio'); 
+        
+        let jeFazeZjistovani = false;
+        let muzeSeHybat = true; 
+
+        // --- POHYB TLAČÍTKA NE ---
+        document.addEventListener('mousemove', function(e) {
+            if (btnNe.style.display === 'none' || faze1.style.display === 'none' || !muzeSeHybat) return;
+
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            const rect = btnNe.getBoundingClientRect();
+            const btnX = rect.left + rect.width / 2;
+            const btnY = rect.top + rect.height / 2;
+            const vzdalenost = Math.sqrt(Math.pow(mouseX - btnX, 2) + Math.pow(mouseY - btnY, 2));
+
+            if (vzdalenost < 250) {
+                uhniPlynule(rect.left, rect.top, mouseX, mouseY);
+            }
+        });
+
+        function uhniPlynule(aktualniX, aktualniY, mysX, mysY) {
+            muzeSeHybat = false;
+            let smerX = aktualniX - mysX; 
+            let smerY = aktualniY - mysY;
+            const silaSkoku = 250;
+            const delkaVektoru = Math.sqrt(smerX * smerX + smerY * smerY);
+            if (delkaVektoru === 0) { smerX = 1; smerY = 1; } 
+            let posunX = (smerX / delkaVektoru) * silaSkoku;
+            let posunY = (smerY / delkaVektoru) * silaSkoku;
+            posunX += (Math.random() * 80 - 40);
+            posunY += (Math.random() * 80 - 40);
+            let noveX = aktualniX + posunX;
+            let noveY = aktualniY + posunY;
+            const padding = 80;
+            const maxX = window.innerWidth - btnNe.offsetWidth - padding;
+            const maxY = window.innerHeight - btnNe.offsetHeight - padding;
+            if (noveX < padding) noveX = padding + Math.abs(posunX);
+            if (noveX > maxX) noveX = maxX - Math.abs(posunX);
+            if (noveY < padding) noveY = padding + Math.abs(posunY);
+            if (noveY > maxY) noveY = maxY - Math.abs(posunY);
+            btnNe.style.position = 'fixed';
+            btnNe.style.left = noveX + 'px';
+            btnNe.style.top = noveY + 'px';
+            setTimeout(() => { muzeSeHybat = true; }, 400); 
+        }
+
+        // --- SCÉNÁŘ: Kliknuto na NE ---
+        btnNe.addEventListener('click', function() {
+            faze1.style.display = 'none';
+            fazeAngry.style.display = 'flex';
+            document.body.className = 'angry-mode';
+            angryAudio.currentTime = 0; angryAudio.volume = 0.5; angryAudio.play();
+        });
+
+        // --- SCÉNÁŘ: Rozmyslela si to ---
+        btnRozmyslela.addEventListener('click', function() {
+            fazeAngry.style.display = 'none';
+            fazeStesti.style.display = 'flex';
+            document.body.className = 'green-mode';
+            angryAudio.pause(); angryAudio.currentTime = 0;
+        });
+
+        // --- SCÉNÁŘ: Chci zjistit co mě čeká ---
+        btnZjistit.addEventListener('click', function() {
+            fazeStesti.style.display = 'none';
+            fazeTitanic.style.display = 'flex';
+            document.body.className = 'titanic-mode';
+        });
+
+        // --- NOVÝ SCÉNÁŘ: A co bude dál? (Jde se na SUSHI) ---
+        btnDalsi.addEventListener('click', function() {
+            fazeTitanic.style.display = 'none';
+            fazeSushi.style.display = 'flex'; 
+            document.body.className = 'sushi-mode';
+        });
+
+        // --- SCÉNÁŘ: Kliknuto rovnou na ANO ---
+        btnAno.addEventListener('click', function() {
+             if (!jeFazeZjistovani) {
+                const nadpis = document.getElementById('hlavni-nadpis');
+                nadpis.textContent = 'Ufff, už jsem se bál, že klikneš na to "NE" 😅';
+                btnNe.style.display = 'none';
+                document.getElementById('img-1').style.display = 'none';
+                btnAno.textContent = "Chci zjistit co mě čeká!";
+                btnAno.style.backgroundColor = "#d63384";
+                btnAno.style.transform = "scale(1.1)";
+                btnAno.style.marginRight = "0"; 
+                document.body.style.backgroundColor = "#ffc1e3";
+                jeFazeZjistovani = true;
+            } else {
+                faze1.style.display = 'none';
+                fazeTitanic.style.display = 'flex';
+                document.body.className = 'titanic-mode';
+            }
+        });
+    </script>
+</body>
+</html>
