@@ -55,6 +55,7 @@
         body.angry-mode .obrazek {
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border: 5px solid #ff0000;
+            animation: shakeConstant 0.3s infinite;
         }
 
         /* --- OBECNÉ KONTEJNERY FÁZÍ --- */
@@ -69,8 +70,6 @@
         #faze-1 { display: flex; min-height: 60vh; }
         #faze-angry { color: white; animation: shake 0.5s; }
         #faze-stesti { animation: popIn 0.5s; }
-        
-        /* Titanic a Sushi styly níže */
 
         h1 {
             color: #d63384;
@@ -109,14 +108,20 @@
         button:hover { transform: scale(1.05); }
 
         /* --- SPECIFICKÁ TLAČÍTKA --- */
-        #btn-ano { background-color: #28a745; color: white; margin-right: 150px; }
+        
+        #btn-ano { 
+            background-color: #28a745; 
+            color: white; 
+            position: absolute;
+            right: calc(50% + 20px); 
+        }
         #btn-ano:hover { background-color: #218838; }
 
         #btn-ne {
             background-color: #dc3545;
             color: white;
             position: absolute; 
-            left: calc(50% + 100px); 
+            left: calc(50% + 20px); 
             transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 20;
         }
@@ -149,6 +154,20 @@
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
+        @keyframes shakeConstant {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
         /* --- STYLY PRO TITANIC KARTU --- */
         #faze-titanic {
             animation: popIn 0.8s;
@@ -175,18 +194,19 @@
              min-height: 100vh;
              width: 100%;
              display: none; 
+             /* ZMĚNA: Kompletní vycentrování */
              align-items: center; 
-             justify-content: flex-start; 
-             padding-left: 5%; 
+             justify-content: center; 
+             padding: 0; 
              box-sizing: border-box;
         }
 
-        /* Obrovský sushi text */
         .sushi-text {
             color: white;
             font-size: 8rem; 
             font-weight: 900;
-            text-align: left;
+            /* ZMĚNA: Zarovnání textu na střed */
+            text-align: center;
             line-height: 1.1;
             max-width: 95%; 
             text-shadow: 
@@ -199,9 +219,10 @@
             animation: popIn 1s;
         }
 
-        /* Úprava velikosti pro mobily */
         @media (max-width: 768px) {
             .sushi-text { font-size: 4.5rem; max-width: 100%; }
+            #btn-ano { right: 55%; }
+            #btn-ne { left: 55%; }
         }
 
     </style>
@@ -223,7 +244,7 @@
     </div>
 
     <div id="faze-angry" class="faze">
-        <img src="angry.gif" alt="angry" class="obrazek">
+        <img src="angry.gif" alt="Angry" class="obrazek">
         <h1>Máš poslední šanci si to rozmyslet! 🔪</h1>
         <div class="arrows-wrapper">
             <div class="arrow top">⬇</div>
@@ -279,9 +300,12 @@
 
             const mouseX = e.clientX;
             const mouseY = e.clientY;
+            const containerRect = document.querySelector('.btn-container').getBoundingClientRect();
+            
             const rect = btnNe.getBoundingClientRect();
             const btnX = rect.left + rect.width / 2;
             const btnY = rect.top + rect.height / 2;
+            
             const vzdalenost = Math.sqrt(Math.pow(mouseX - btnX, 2) + Math.pow(mouseY - btnY, 2));
 
             if (vzdalenost < 250) {
@@ -296,22 +320,28 @@
             const silaSkoku = 250;
             const delkaVektoru = Math.sqrt(smerX * smerX + smerY * smerY);
             if (delkaVektoru === 0) { smerX = 1; smerY = 1; } 
+            
             let posunX = (smerX / delkaVektoru) * silaSkoku;
             let posunY = (smerY / delkaVektoru) * silaSkoku;
             posunX += (Math.random() * 80 - 40);
             posunY += (Math.random() * 80 - 40);
+            
             let noveX = aktualniX + posunX;
             let noveY = aktualniY + posunY;
+            
             const padding = 80;
             const maxX = window.innerWidth - btnNe.offsetWidth - padding;
             const maxY = window.innerHeight - btnNe.offsetHeight - padding;
+            
             if (noveX < padding) noveX = padding + Math.abs(posunX);
             if (noveX > maxX) noveX = maxX - Math.abs(posunX);
             if (noveY < padding) noveY = padding + Math.abs(posunY);
             if (noveY > maxY) noveY = maxY - Math.abs(posunY);
-            btnNe.style.position = 'fixed';
+            
+            btnNe.style.position = 'fixed'; 
             btnNe.style.left = noveX + 'px';
             btnNe.style.top = noveY + 'px';
+            
             setTimeout(() => { muzeSeHybat = true; }, 400); 
         }
 
@@ -338,7 +368,7 @@
             document.body.className = 'titanic-mode';
         });
 
-        // --- NOVÝ SCÉNÁŘ: A co bude dál? (Jde se na SUSHI) ---
+        // --- SCÉNÁŘ: A co bude dál? ---
         btnDalsi.addEventListener('click', function() {
             fazeTitanic.style.display = 'none';
             fazeSushi.style.display = 'flex'; 
@@ -352,10 +382,14 @@
                 nadpis.textContent = 'Ufff, už jsem se bál, že klikneš na to "NE" 😅';
                 btnNe.style.display = 'none';
                 document.getElementById('img-1').style.display = 'none';
+                
+                btnAno.style.position = 'static';
+                btnAno.style.margin = '0';
+                
                 btnAno.textContent = "Chci zjistit co mě čeká!";
                 btnAno.style.backgroundColor = "#d63384";
                 btnAno.style.transform = "scale(1.1)";
-                btnAno.style.marginRight = "0"; 
+                
                 document.body.style.backgroundColor = "#ffc1e3";
                 jeFazeZjistovani = true;
             } else {
@@ -366,5 +400,4 @@
         });
     </script>
 </body>
-
 </html>
